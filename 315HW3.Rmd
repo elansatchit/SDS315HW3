@@ -1,0 +1,283 @@
+---
+title: "315HW3"
+author: "Elan Satchit"
+date: "2025-02-11"
+output: pdf_document
+---
+
+```{r setup, include=FALSE, warning = FALSE, message = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(ggplot2)
+library(readr)
+library(mosaic)
+```
+
+[GITHUB REPO](https://github.com/elansatchit/SDS315HW3)
+
+# Problem 1
+
+```{r echo=FALSE}
+# Load the dataset
+gas_data <- read_csv("gasprices.csv", , show_col_types = FALSE)
+
+```
+
+## Theory A: Gas stations charge more if they lack direct competition in sight
+
+```{r echo=FALSE}
+# Compare gas prices based on the presence of competitors
+comp_summary <- gas_data %>%
+  group_by(Competitors) %>%
+  summarise(Avg_Price = mean(Price, na.rm = TRUE),
+            SD = sd(Price, na.rm = TRUE),
+            Count = n())
+
+# Plot the price comparison
+ggplot(gas_data, aes(x = Competitors, y = Price, fill = Competitors)) +
+  geom_boxplot() +
+  labs(title = "Gas Prices vs. Competitors Presence",
+       x = "Competitors Present",
+       y = "Gas Price") +
+  theme_minimal()
+```
+
+The theory suggests that gas stations without direct competitors nearby can charge higher prices due to the lack of competitive pressure. The graph, titled Gas Prices vs. Competitors Presence, visually compares the average gas prices of stations with competitors (Competitors = Y) and those without competitors (Competitors = N). The graph shows that gas stations without competitors (Competitors = N) have a slightly higher average price (approximately 1.89) compared to those with competitors (Competitors = Y), which average around 1.85. The difference of $0.04 supports the theory that gas stations without direct competition tend to charge slightly higher prices. The graph also shows a clear separation between the two groups, with less variability in prices for stations without competitors, suggesting that the absence of competition allows for more consistent pricing. Therefore, the data and the graph support the theory that gas stations without competitors charge higher prices, though the effect size is relatively small.
+
+
+## Theory B: The richer the area, the higher the gas prices
+```{r echo=FALSE, warning  = FALSE, message = FALSE}
+# Correlation between income and gas price
+correlation <- cor(gas_data$Income, gas_data$Price)
+
+# Scatter plot with regression line
+ggplot(gas_data, aes(x = Income, y = Price)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", color = "red") +
+  labs(title = "Gas Prices vs. Median Household Income",
+       x = "Median Household Income ($)",
+       y = "Gas Price ($)") +
+  theme_minimal()
+
+```
+
+This theory states that gas stations in higher-income areas charge higher prices due to the greater purchasing power of residents. The graph shows the relationship between median household income (x-axis) and gas prices (y-axis). The graph reveals a positive trend, indicating that as median household income increases, gas prices tend to rise as well. The correlation coefficient of 0.4 supports this observation, showing a moderate positive relationship. The graph also shows that gas prices in lower-income areas (below 50,000) tend to cluster around 1.80 to 1.85, while prices in higher income areas (above 100,000) rise to around 1.90 to 2.0. This visual trend, combined with the correlation coefficient, provides strong evidence that gas prices are higher in wealthier areas. Therefore, the data and the graph support the theory that the richer the area, the higher the gas prices.
+
+## Theory C: Gas stations at stoplights charge more
+
+```{r echo=FALSE}
+# Compare gas prices based on stoplight presence
+stoplight_summary <- gas_data %>%
+  group_by(Stoplight) %>%
+  summarise(Avg_Price = mean(Price, na.rm = TRUE),
+            SD = sd(Price, na.rm = TRUE),
+            Count = n())
+
+# Boxplot for gas price by stoplight presence
+ggplot(gas_data, aes(x = Stoplight, y = Price, fill = Stoplight)) +
+  geom_boxplot() +
+  labs(title = "Gas Prices vs. Stoplight Presence",
+       x = "Stoplight Present",
+       y = "Gas Price ($)") +
+  theme_minimal()
+```
+
+The theory claims that gas stations located at stoplights may charge higher prices due to the convenience of being at a high-traffic location. The graph, titled Gas Prices vs. Stoplight Presence, compares the average gas prices of stations at stoplights (Stoplight = Y) and those not at stoplights (Stoplight = N). The graph shows that gas stations at stoplights (Stoplight = Y) have an average price of approximately 1.87, while those not at stoplights (Stoplight = Y) average around 1.84. The difference of $0.03 supports the theory that gas stations at stoplights charge slightly higher prices. The graph also reveals that the distribution of prices for stations at stoplights is slightly more spread out, suggesting that while some stations at stoplights charge significantly higher prices, others are closer to the average. Overall, the data and the graph provide moderate support for the theory that gas stations at stoplights charge more, though the effect size is relatively small.
+
+
+## Theory D: Gas stations with direct highway access charge more
+
+```{r echo=FALSE}
+# Compare gas prices based on highway access
+highway_summary <- gas_data %>%
+  group_by(Highway) %>%
+  summarise(Avg_Price = mean(Price, na.rm = TRUE),
+            SD = sd(Price, na.rm = TRUE),
+            Count = n())
+
+# Boxplot for gas price by highway access
+ggplot(gas_data, aes(x = Highway, y = Price, fill = Highway)) +
+  geom_boxplot() +
+  labs(title = "Gas Prices vs. Highway Access",
+       x = "Highway Access",
+       y = "Gas Price ($)") +
+  theme_minimal()
+```
+
+The theory suggests that gas stations with direct highway access charge higher prices due to the convenience they offer to travelers and the higher demand for fuel in these locations. The graph, titled Gas Prices vs. Highway Access, compares the average gas prices of stations with highway access (Highway = Y) and those without highway access (Highway = N). The graph shows that gas stations with highway access (Highway = Y) have an average price of approximately 
+1.90, while those without highway access (Highway = N) average around 1.88. The difference of $0.02 is relatively small, but the graph also reveals that the distribution of prices for stations with highway access is slightly more spread out, with some stations charging significantly higher prices. This suggests that while highway access may allow some gas stations to charge a premium, the effect is not uniform across all stations. Therefore, the data and the graph provide weak support for the theory that gas stations with direct highway access charge more, as the overall difference in prices is minimal.
+
+
+## Theory E: Shell charges more than all other non-Shell brands
+
+```{r echo=FALSE}
+# Compare gas prices based on brand
+brand_summary <- gas_data %>%
+  group_by(Brand) %>%
+  summarise(Avg_Price = mean(Price, na.rm = TRUE),
+            SD = sd(Price, na.rm = TRUE),
+            Count = n())
+
+# Boxplot for gas price by brand
+ggplot(gas_data, aes(x = Brand, y = Price, fill = Brand)) +
+  geom_boxplot() +
+  labs(title = "Gas Prices by Brand",
+       x = "Brand",
+       y = "Gas Price ($)") +
+  theme_minimal()
+```
+
+The theory claims that Shell gas stations charge higher prices compared to all other non-Shell brands, possibly due to brand reputation or perceived quality. The graph, titled Gas Prices by Brand, compares the average gas prices across different brands, including Shell, Chevron-Texaco, ExxonMobil, and Other. The graph shows that Shell has an average price of approximately 1.88, while Chevron-Texaco, and other brands average 1.85. Contrary to the theory, Shell does not charge the highest prices; instead, Chevron-Texaco has the highest average price, followed closely by Shell. The graph also reveals that Shell’s prices are only slightly higher than ExxonMobil and significantly lower than Chevron-Texaco. Therefore, the data and the graph do not support the theory that Shell charges more than all other non-Shell brands. In fact, Shell’s prices are competitive and fall within the mid-range of the brands analyzed.
+
+
+# Problem 2
+
+## Part A
+
+```{r echo = FALSE}
+sclass_data <- read.csv("sclass.csv")
+
+sclass_2011_63amg <- subset(sclass_data, year == 2011 & trim == "63 AMG")
+
+boot_mileage <- do(10000) * mean(sample(sclass_2011_63amg$mileage, replace = TRUE))
+
+confint(boot_mileage, level=0.95)
+```
+
+## Part B
+
+```{r echo = FALSE}
+sclass_2014_550 <- subset(sclass_data, year == 2014 & trim == "550")
+sclass_2014_550$isBlack <- sclass_2014_550$color == "Black"
+
+
+boot_blackprop <- do(10000) * mean(sample(sclass_2014_550$isBlack, replace = TRUE))
+
+confint(boot_blackprop, level = 0.95)
+```
+
+# Problem 3
+
+## Part A
+
+```{r echo = FALSE}
+nbc_shows <- read.csv("nbc_pilotsurvey.csv")
+
+PartA_shows <- subset(nbc_shows, Show == "Living with Ed" | Show == "My Name is Earl")
+
+boot_diff_means <- do(10000) * {
+  mean(sample(PartA_shows$Q1_Happy[PartA_shows$Show == "Living with Ed"], replace = TRUE)) - 
+  mean(sample(PartA_shows$Q1_Happy[PartA_shows$Show == "My Name is Earl"], replace = TRUE))
+}
+
+confint(boot_diff_means, level = 0.95)
+```
+
+### Question:
+The main question we aim to answer is whether viewers of Living with Ed or My Name is Earl report higher levels of happiness while watching the show. Specifically, we are interested in determining if there is a statistically significant difference in mean viewer happiness (Q1_Happy) between these two shows. If there is strong evidence that one show consistently produces a higher mean happiness response, this could inform programming and advertising decisions.
+
+### Approach
+To answer this question, we first filtered the dataset to include only responses for viewers who watched either Living with Ed or My Name is Earl. We then computed the difference in mean happiness scores (Q1_Happy) between these two groups. To assess statistical significance, we used bootstrap resampling (10,000 simulations) to construct a 95% confidence interval for the difference in mean happiness responses. The confidence interval method helps quantify the uncertainty in our estimate and determine whether the difference is statistically meaningful.
+
+### Results
+The analysis resulted in an estimated difference in mean happiness scores of 0.149, meaning that viewers of Living with Ed reported slightly higher happiness scores on average compared to those who watched My Name is Earl. The 95% confidence interval for this difference is (-0.099, 0.394).
+
+Since the confidence interval includes 0, this suggests that the difference is not statistically significant—meaning that, based on the data, we cannot conclusively determine whether one show makes people happier than the other.
+
+### Conclusion
+Based on our findings, there is no strong statistical evidence that Living with Ed consistently produces a higher mean happiness response than My Name is Earl, or vice versa. While the observed difference suggests that Living with Ed may lead to slightly higher happiness ratings, the confidence interval includes 0, indicating that this difference could be due to random variation rather than a true effect.
+
+
+
+## Part B
+```{r echo = FALSE}
+PartB_shows <- subset(nbc_shows, Show == "The Biggest Loser" | Show == "The Apprentice: Los Angeles")
+
+boot_diff_meansB <- do(10000) * {
+  mean(sample(PartB_shows$Q1_Annoyed[PartB_shows$Show == "The Biggest Loser"], replace = TRUE)) - 
+  mean(sample(PartB_shows$Q1_Annoyed[PartB_shows$Show == "The Apprentice: Los Angeles"], replace = TRUE))
+}
+
+confint(boot_diff_meansB, level = 0.95)
+```
+### Question:
+The main objective of this analysis is to determine whether viewers of The Biggest Loser or The Apprentice: Los Angeles reported feeling more annoyed while watching the show. Specifically, we aim to identify whether there is a statistically significant difference in mean annoyance ratings (Q1_Annoyed) between the two shows. If one show consistently leads to higher annoyance levels, this insight could be useful for networks and advertisers looking to understand audience sentiment.
+
+### Approach
+To answer this question, we first filtered the dataset to include only responses from viewers who watched either The Biggest Loser or The Apprentice: Los Angeles. We then calculated the difference in mean annoyance scores (Q1_Annoyed) between these two groups. To assess statistical significance, we applied a bootstrap resampling method (10,000 simulations) to estimate a 95% confidence interval for the difference in mean annoyance responses. The confidence interval method quantifies the uncertainty around our estimate and helps determine whether the observed difference is meaningful.
+
+### Results
+The analysis yielded an estimated difference in mean annoyance scores of -0.271, meaning that viewers of The Biggest Loser reported being slightly less annoyed on average compared to those who watched The Apprentice: Los Angeles. The 95% confidence interval for this difference is (-0.526, -0.020).
+
+Since the confidence interval does not include 0, this suggests that the difference is statistically significant—indicating that The Apprentice: Los Angeles consistently led to higher annoyance ratings compared to The Biggest Loser.
+
+### Conclusion
+Based on these findings, we have strong statistical evidence that The Apprentice: Los Angeles generated significantly higher annoyance levels among viewers than The Biggest Loser. The confidence interval does not include zero, reinforcing that the observed difference is unlikely to be due to random variation.
+
+
+## Part C
+
+```{r echo = FALSE}
+PartC_show <- subset(nbc_shows, Show == "Dancing with the Stars")
+
+# Remove missing values
+PartC_show <- na.omit(PartC_show)
+
+PartC_show$Confusing <- PartC_show$Q2_Confusing == 4 | PartC_show$Q2_Confusing == 5
+
+
+boot_propC <- do(10000) * mean(sample(na.omit(PartC_show$Confusing), replace = TRUE))
+
+confint(boot_propC)
+
+
+```
+
+### Question:
+The goal of this analysis is to determine what proportion of American TV watchers found Dancing with the Stars confusing. Specifically, we are interested in estimating the proportion of viewers who responded 4 or 5 on the Q2_Confusing question, indicating that they either "Agreed" or "Strongly Agreed" that the show was confusing. We aim to construct a 95% confidence interval for this proportion to quantify the uncertainty in our estimate.
+
+### Approach
+To answer this question, we first filtered the dataset to include only responses from viewers who watched Dancing with the Stars. We then calculated the sample proportion of viewers who rated the show as confusing (Q2_Confusing >= 4). To quantify the uncertainty in our estimate, we applied a bootstrap resampling method (10,000 simulations) to generate a 95% confidence interval for the true proportion of viewers who found the show confusing. The percentile method was used to extract the confidence interval bounds.
+
+### Results
+The estimated proportion of viewers who found Dancing with the Stars confusing is 0.077 (or 7.73% of viewers). The 95% confidence interval for this proportion is (0.044, 0.116), meaning that we are 95% confident that the true proportion of viewers who found the show confusing falls between 4.4% and 11.6%.
+
+### Conclusion
+Based on these results, we conclude that a relatively small but notable percentage of viewers found Dancing with the Stars confusing. The confidence interval suggests that between 4.4% and 11.6% of the general audience perceived the show as confusing. While this is a minority of viewers, it may still be relevant for producers and networks to consider ways to clarify the competition format, improve audience engagement, or adjust presentation style to minimize confusion. If this level of confusion negatively impacts viewer retention or ratings, addressing these concerns could enhance audience experience.
+
+# Problem 4
+
+```{r echo = FALSE}
+ebay_data <- read.csv("ebay.csv")
+
+# Compute the revenue ratio (rev_after / rev_before)
+ebay_data$revenue_ratio <- ebay_data$rev_after / ebay_data$rev_before
+
+# Separate treatment and control groups
+treatment <- ebay_data$revenue_ratio[ebay_data$adwords_pause == 1]
+control <- ebay_data$revenue_ratio[ebay_data$adwords_pause == 0]
+
+# Compute observed difference in mean revenue ratio
+obs_diff <- mean(treatment, na.rm = TRUE) - mean(control, na.rm = TRUE)
+
+# Perform bootstrap resampling (10,000 samples)
+set.seed(123)  # For reproducibility
+boot_diffs <- do(10000) * (mean(sample(treatment, replace = TRUE, na.rm = TRUE)) - 
+                           mean(sample(control, replace = TRUE, na.rm = TRUE)))
+
+# Compute 95% confidence interval using confint()
+ci <- confint(boot_diffs, level = 0.95)
+print(ci)
+```
+
+### Question:
+The primary question we aim to answer is whether eBay’s paid search advertising on Google AdWords significantly impacts revenue. Specifically, we want to determine if turning off paid search ads in certain designated market areas (DMAs) leads to a decrease in revenue compared to the DMAs where advertising continued. If paid search advertising is genuinely driving additional revenue, we would expect the revenue ratio (post-experiment revenue divided by pre-experiment revenue) to be systematically lower in the treatment group (where ads were paused) than in the control group (where ads continued). On the other hand, if paid search advertising is ineffective
+
+### Approach
+To answer this question, we conducted a statistical analysis comparing the revenue ratios between the treatment and control groups. First, we computed the revenue ratio for each DMA by dividing revenue after the experiment by revenue before the experiment. We then calculated the observed difference in mean revenue ratio between the two groups. To assess the statistical significance of this difference, we performed a bootstrap resampling procedure with 10,000 simulations to estimate a 95% confidence interval for the difference in revenue ratios. This approach allowed us to account for variability in the data and ensure robust statistical inference. Finally, we used confint() to extract the confidence interval, which provides a range of values where the true difference in revenue ratio is likely to fall.
+
+### Results
+The analysis revealed that the observed difference in revenue ratio (Treatment - Control) was -0.0523, indicating that the treatment group experienced an average 5.23% decline in revenue compared to the control group. The 95% confidence interval for this difference was (-0.0912, -0.0144). Since the entire confidence interval is negative, this suggests that the revenue ratio was consistently lower in the treatment group than in the control group. The use of bootstrapping confirmed that this difference is not due to random chance and that pausing paid search advertising had a statistically significant negative impact on revenue.
+
+### Conclusion
+Based on our findings, we conclude that pausing paid search advertising resulted in a significant revenue decline for eBay. Since the confidence interval does not contain zero, we have strong statistical evidence that paid search ads contribute additional revenue beyond what is captured through organic search traffic. If eBay were to eliminate its paid search advertising, it would likely experience a 5.2% revenue drop on average, with a possible decline as high as 9.1% or as low as 1.4%. Given these results, we recommend that eBay continue investing in Google AdWords advertising, as turning off these ads leads to a measurable loss in revenue. These findings provide critical insights for eBay’s marketing strategy, emphasizing the importance of paid search in driving sales. 
